@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>垢抜け診断 - あなたの美容レベルをチェック</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #ffffff;
+            color: #333333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #1a237e;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            color: #666;
+        }
+
+        .start-screen {
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .start-button {
+            background-color: #1a237e;
+            color: white;
+            padding: 18px 40px;
+            font-size: 1.3em;
+            border: none;
+            cursor: pointer;
+            margin: 30px auto;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .start-button:hover {
+            background-color: #303f9f;
+            transform: translateY(-2px);
+        }
+
+        .question-container {
+            display: none;
+            flex: 1;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .progress-bar {
+            background-color: #f5f5f5;
+            height: 8px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background-color: #1a237e;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-number {
+            color: #1a237e;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .question-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #1a237e;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            background-color: #ffffff;
+            border: 2px solid #e0e0e0;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1em;
+        }
+
+        .option:hover {
+            background-color: #f5f5f5;
+            border-color: #bdbdbd;
+        }
+
+        .option.selected {
+            background-color: #f5f5f5;
+            border-color: #1a237e;
+            color: #1a237e;
+        }
+
+        .navigation {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-button {
+            background-color: transparent;
+            color: #666;
+            padding: 10px 20px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #f5f5f5;
+            border-color: #999;
+        }
+
+        .back-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result-container {
+            display: none;
+            text-align: center;
+        }
+
+        .result-title {
+            font-size: 2em;
+            color: #1a237e;
+            margin-bottom: 30px;
+        }
+
+        .skin-type, .hair-type, .grooming-level, .lifestyle-impact, .improvement-points {
+            background-color: #f8f9fa;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 4px solid #1a237e;
+        }
+
+        .type-title {
+            font-size: 1.5em;
+            color: #1a237e;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .type-description {
+            color: #555;
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+
+        .recommendations {
+            margin-top: 30px;
+        }
+
+        .recommendations h3 {
+            color: #1a237e;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .product-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .product-link {
+            background-color: #1a237e;
+            color: white;
+            padding: 12px 20px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .product-link:hover {
+            background-color: #303f9f;
+            transform: translateY(-1px);
+        }
+
+        .restart-button {
+            background-color: #666;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            cursor: pointer;
+            margin-top: 30px;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+
+        .restart-button:hover {
+            background-color: #555;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .option {
+                padding: 12px 15px;
+                font-size: 0.95em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>垢抜け診断</h1>
+            <p>あなたの美容レベルをチェックして、理想の自分に近づこう</p>
+        </div>
+
+        <div class="start-screen" id="startScreen">
+            <div>
+                <h2 style="margin-bottom: 20px; color: #333;">30の質問で分析します</h2>
+                <p style="margin-bottom: 30px; color: #666; font-size: 1.1em;">
+                    肌・髪・身だしなみ・生活習慣を総合的に診断し、<br>
+                    あなたに最適なケア方法と商品をご提案します。
+                </p>
+                <button class="start-button" onclick="startDiagnosis()">診断スタート</button>
+            </div>
+        </div>
+
+        <div class="question-container" id="questionContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            
+            <div class="question-number" id="questionNumber">質問 1/30</div>
+            <div class="question-title" id="questionTitle"></div>
+            
+            <div class="options" id="options"></div>
+            
+            <div class="navigation">
+                <button class="back-button" id="backButton" onclick="goBack()">← 前の質問に戻る</button>
+                <div id="questionProgress" style="color: #666;"></div>
+            </div>
+        </div>
+
+        <div class="result-container" id="resultContainer">
+            <h2 class="result-title">診断結果</h2>
+            <div id="resultContent"></div>
+            <button class="restart-button" onclick="restartDiagnosis()">もう一度診断する</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            // 肌の状態 (8問)
+            {
+                category: "肌の状態",
+                question: "今の肌の状態は？",
+                options: ["ベタつく", "カサつく", "ちょうどいい", "部位で違う", "ピリピリする"]
+            },
+            {
+                category: "肌の状態",
+                question: "今、頬を触ってみてください。どんな感じ？",
+                options: ["ザラザラしている", "ツルツルしている", "ところどころザラつく", "触るとベタベタする", "乾燥してカサカサ"]
+            },
+            {
+                category: "肌の状態",
+                question: "唇の状態は？",
+                options: ["カサカサで皮がめくれる", "少し乾燥気味", "潤っている", "荒れて痛い", "縦じわが目立つ"]
+            },
+            {
+                category: "肌の状態",
+                question: "クマはありますか？",
+                options: ["青っぽいクマがある", "茶色っぽいクマがある", "たるみで影ができている", "クマはない", "時々できる"]
+            },
+            {
+                category: "肌の状態",
+                question: "ニキビや吹き出物の状態は？",
+                options: ["常にある", "時々できる", "ほとんどない", "跡が残っている", "今まさにできている"]
+            },
+            {
+                category: "肌の状態",
+                question: "肌の色ムラはありますか？",
+                options: ["赤みが目立つ", "黄色っぽい", "部分的に濃い", "均一", "くすんで見える"]
+            },
+            {
+                category: "肌の状態",
+                question: "日焼け止めを塗る頻度は？",
+                options: ["毎日塗る", "外出する時だけ", "夏だけ", "たまに忘れる", "ほとんど塗らない"]
+            },
+            {
+                category: "肌の状態",
+                question: "スキンケアをする頻度は？",
+                options: ["毎日欠かさない", "ほとんど毎日する", "気が向いた時だけする", "ほとんどしない", "スキンケアの方法がわからない"]
+            },
+            // 髪の状態 (7問)
+            {
+                category: "髪の状態",
+                question: "今の髪を触ってみてください。どんな感じ？",
+                options: ["パサパサ・ゴワゴワ", "しっとりツヤがある", "ベタついている", "絡まりやすい", "普通"]
+            },
+            {
+                category: "髪の状態",
+                question: "髪の毛先の状態は？",
+                options: ["枝毛が多い", "切れ毛がある", "まとまらない", "健康的", "カラーで傷んでいる"]
+            },
+            {
+                category: "髪の状態",
+                question: "朝起きた時の髪型は？",
+                options: ["ぺちゃんこ", "爆発している", "寝癖がひどい", "そこそこまとまっている", "油っぽい"]
+            },
+            {
+                category: "髪の状態",
+                question: "シャンプーの頻度は？",
+                options: ["毎日", "1日おき", "2-3日に1回", "週に2-3回", "不定期"]
+            },
+            {
+                category: "髪の状態",
+                question: "今の髪色は顔に合っていると思いますか？",
+                options: ["とても合っている", "まあまあ合っている", "よくわからない", "合っていない気がする", "考えたことがない"]
+            },
+            {
+                category: "髪の状態",
+                question: "髪のボリュームは？",
+                options: ["ペタンとしている", "ちょうどいい", "多すぎて扱いにくい", "薄毛が気になる", "部分的にボリュームが違う"]
+            },
+            {
+                category: "髪の状態",
+                question: "ヘアスタイリング剤を使いますか？",
+                options: ["毎日使う", "特別な日だけ", "たまに使う", "持っていない", "使い方がわからない"]
+            },
+            // 眉毛・顔まわり (4問)
+            {
+                category: "眉毛・顔まわり",
+                question: "眉毛の状態は？",
+                options: ["整えている", "自然のまま", "剃りすぎて薄い", "ボサボサ", "形がよくわからない"]
+            },
+            {
+                category: "眉毛・顔まわり",
+                question: "鼻毛は見えていませんか？",
+                options: ["見えていない", "たまに出る", "今チェックして見つけた", "よくわからない", "処理している"]
+            },
+            {
+                category: "眉毛・顔まわり",
+                question: "まつ毛の状態は？",
+                options: ["長くて濃い", "短い", "薄い", "下がっている", "普通"]
+            },
+            {
+                category: "眉毛・顔まわり",
+                question: "産毛の処理はしていますか？",
+                options: ["定期的にしている", "たまにする", "気になった時だけ", "したことがない", "方法がわからない"]
+            },
+            // 服装・身だしなみ (6問)
+            {
+                category: "服装・身だしなみ",
+                question: "今着ている服のシワは？",
+                options: ["シワがない", "少しシワがある", "かなりシワがある", "シワになりにくい素材", "気にしていない"]
+            },
+            {
+                category: "服装・身だしなみ",
+                question: "服のサイズ感は？",
+                options: ["ジャストサイズ", "少し大きめ", "少し小さめ", "かなり大きい/小さい", "よくわからない"]
+            },
+            {
+                category: "服装・身だしなみ",
+                question: "爪の状態は？",
+                options: ["切りそろえて清潔", "長すぎる", "深爪", "汚れている", "ささくれがある"]
+            },
+            {
+                category: "服装・身だしなみ",
+                question: "香りは大丈夫ですか？",
+                options: ["香水をつけている", "体臭対策をしている", "特に何もしていない", "自分の匂いがわからない", "時々気になる"]
+            },
+            {
+                category: "服装・身だしなみ",
+                question: "靴の状態は？",
+                options: ["きれい", "少し汚れている", "かなり汚れている", "かかとが減っている", "足に合っていない"]
+            },
+            {
+                category: "服装・身だしなみ",
+                question: "姿勢はどうですか？",
+                options: ["背筋が伸びている", "少し猫背", "かなり猫背", "意識していない", "肩が前に出ている"]
+            },
+            // 生活習慣・栄養 (5問)
+            {
+                category: "生活習慣・栄養",
+                question: "睡眠時間は？",
+                options: ["7-8時間", "6時間程度", "5時間以下", "9時間以上", "バラバラ"]
+            },
+            {
+                category: "生活習慣・栄養",
+                question: "水分摂取量は？",
+                options: ["1日1.5L以上", "1L程度", "500ml程度", "あまり飲まない", "意識していない"]
+            },
+            {
+                category: "生活習慣・栄養",
+                question: "食事のバランスは？",
+                options: ["野菜・タンパク質をしっかり摂る", "まあまあバランス良い", "炭水化物中心", "コンビニ食が多い", "不規則"]
+            },
+            {
+                category: "生活習慣・栄養",
+                question: "運動習慣は？",
+                options: ["定期的にしている", "たまにする", "日常的に歩く程度", "ほとんどしない", "デスクワーク中心"]
+            },
+            {
+                category: "生活習慣・栄養",
+                question: "ストレス状態は？",
+                options: ["あまりない", "適度にある", "かなりある", "解消法がある", "溜まりがち"]
+            }
+        ];
+
+        const skinTypes = {
+            normal: {
+                name: "普通肌",
+                description: "水分が適量か多めで油分が適量な肌タイプです。基本の洗顔と保湿ケアを続けることで健やかな肌をキープできます。ただし季節の関係やエアコンの使用などで肌が乾燥する場合があります。乾燥や皮脂の過剰分泌などがおきたときはケアの方法を変えましょう。",
+                products: [
+                    { name: "ナチュリエ ハトムギ化粧水", url: "https://www.naturie-net.jp/lotion" },
+                    { name: "重曹泡洗顔", url: "https://www.gr-inc.jp/juso-kuro-wash/" },
+                    { name: "ソフティモ クレンジング", url: "https://maison.kose.co.jp/site/softymo/g/gCPT0017/" },
+                    { name: "スキンライフ", url: "https://www.skinlife.jp/product/" }
+                ]
+            },
+            sensitive: {
+                name: "敏感肌",
+                description: "外部刺激に反応しやすい肌タイプです。化学成分や摩擦、温度変化などで赤みやかゆみが出やすいため、低刺激性の製品を選び、優しいケアを心がけることが大切です。新しい化粧品を使う際はパッチテストを行いましょう。",
+                products: [
+                    { name: "ソフティモ 敏感肌用", url: "https://kose-softymo.com/cleansingwash/" },
+                    { name: "無印良品 敏感肌用化粧水", url: "https://www.muji.com/jp/ja/store/cmdty/detail/%E6%95%8F%E6%84%9F%E8%82%8C%E7%94%A8%E5%8C%96%E7%B2%A7%E6%B0%B4%E3%80%80%E9%AB%98%E4%BF%9D%E6%B9%BF%EF%BC%88%E6%90%BA%E5%B8%AF%E7%94%A8%EF%BC%89/4550583483241" },
+                    { name: "ナチュリエ ハトムギ化粧水", url: "https://www.naturie-net.jp/lotion" },
+                    { name: "敏感肌用スキンケア", url: "https://www.cosme.net/products/10151081/" }
+                ]
+            },
+            combination: {
+                name: "混合肌",
+                description: "Tゾーンは脂っぽく、Uゾーンは乾燥しがちな肌タイプです。部位によってケア方法を変える必要があります。Tゾーンには皮脂コントロール、Uゾーンには保湿重視のケアを行い、全体のバランスを整えましょう。",
+                products: [
+                    { name: "重曹泡洗顔", url: "https://www.gr-inc.jp/juso-kuro-wash/" },
+                    { name: "スキンライフ", url: "https://www.skinlife.jp/product/" },
+                    { name: "メラノCC", url: "https://www.shop.rohto.co.jp/category/skincare/melanocc/173242.html" },
+                    { name: "ナチュリエ ハトムギ化粧水", url: "https://www.naturie-net.jp/lotion" }
+                ]
+            },
+            dry: {
+                name: "乾燥肌",
+                description: "水分・油分ともに不足している肌タイプです。肌のバリア機能が低下しているため、外部刺激を受けやすく、小じわやくすみが出やすい状態です。保湿を重視したスキンケアと、肌に優しい洗顔を心がけましょう。",
+                products: [
+                    { name: "無印良品 敏感肌用化粧水", url: "https://www.muji.com/jp/ja/store/cmdty/detail/%E6%95%8F%E6%84%9F%E8%82%8C%E7%94%A8%E5%8C%96%E7%B2%A7%E6%B0%B4%E3%80%80%E9%AB%98%E4%BF%9D%E6%B9%BF%EF%BC%88%E6%90%BA%E5%B8%AF%E7%94%A8%EF%BC%89/4550583483241" },
+                    { name: "ソフティモ 敏感肌用", url: "https://kose-softymo.com/cleansingwash/" },
+                    { name: "スキンライフ", url: "https://www.skinlife.jp/product/" }
+                ]
+            },
+            oily: {
+                name: "脂性肌",
+                description: "皮脂分泌が多く、テカリやべたつきが気になる肌タイプです。毛穴が目立ちやすく、ニキビができやすい傾向があります。しっかりとした洗顔で余分な皮脂を取り除きつつ、適度な保湿も忘れずに行いましょう。",
+                products: [
+                    { name: "重曹泡洗顔", url: "https://www.gr-inc.jp/juso-kuro-wash/" },
+                    { name: "メラノCC", url: "https://www.shop.rohto.co.jp/category/skincare/melanocc/173242.html" },
+                    { name: "オイリー肌用スキンケア", url: "https://www.cosme.com/products/detail.php?product_id=222437" },
+                    { name: "スキンライフ", url: "https://www.skinlife.jp/product/" }
+                ]
+            }
+        };
+
+        const hairTypes = {
+            coarse: {
+                name: "剛毛",
+                description: "髪が太くて硬い髪質です。ボリュームが出やすく、スタイリングが難しい場合があります。保湿重視のヘアケアで髪を柔らかくし、重めのスタイリング剤でまとめると良いでしょう。"
+            },
+            curly: {
+                name: "癖毛",
+                description: "髪にうねりやクセがある髪質です。湿気の影響を受けやすく、まとまりにくい特徴があります。保湿とクセを活かすスタイリングで、自然な美しさを引き出しましょう。"
+            },
+            fine: {
+                name: "猫っ毛",
+                description: "髪が細くて柔らかい髪質です。ボリューム不足やぺたんこになりやすいのが悩みです。根元からのボリュームアップと、軽めのスタイリング剤の使用がおすすめです。"
+            },
+            straight: {
+                name: "直毛",
+                description: "髪が真っ直ぐでクセのない髪質です。扱いやすい反面、動きを出しにくい場合があります。適度なボリューム感とスタイリングで、メリハリのあるヘアスタイルを作りましょう。"
+            }
+        };
+
+        let currentQuestion = 0;
+        let answers = [];
+
+        function startDiagnosis() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('questionContainer').style.display = 'block';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('questionNumber').textContent = `質問 ${currentQuestion + 1}/30`;
+            document.getElementById('questionTitle').textContent = question.question;
+            
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.textContent = option;
+                optionElement.onclick = () => selectAnswer(index);
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            document.getElementById('backButton').disabled = currentQuestion === 0;
+            document.getElementById('questionProgress').textContent = `${currentQuestion + 1} / 30`;
+        }
+
+        function selectAnswer(answerIndex) {
+            // 選択肢をハイライト
+            const options = document.querySelectorAll('.option');
+            options.forEach(option => option.classList.remove('selected'));
+            options[answerIndex].classList.add('selected');
+            
+            // 回答を保存
+            answers[currentQuestion] = answerIndex;
+            
+            // 0.5秒後に次の質問へ
+            setTimeout(() => {
+                if (currentQuestion < questions.length - 1) {
+                    currentQuestion++;
+                    showQuestion();
+                } else {
+                    showResult();
+                }
+            }, 500);
+        }
+
+        function goBack() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('questionContainer').style.display = 'none';
+            document.getElementById('resultContainer').style.display = 'block';
+            
+            const skinType = analyzeSkinType();
+            const hairType = analyzeHairType();
+            
+            const resultContent = document.getElementById('resultContent');
+            resultContent.innerHTML = `
+                <div class="skin-type">
+                    <div class="type-title">あなたの肌タイプ: ${skinTypes[skinType].name}</div>
+                    <div class="type-description">${skinTypes[skinType].description}</div>
+                    <div class="recommendations">
+                        <h3>おすすめ商品</h3>
+                        <div class="product-links">
+                            ${skinTypes[skinType].products.map(product => 
+                                `<a href="${product.url}" target="_blank" class="product-link">${product.name}</a>`
+                            ).join('')}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="hair-type">
+                    <div class="type-title">あなたの髪タイプ: ${hairTypes[hairType].name}</div>
+                    <div class="type-description">${hairTypes[hairType].description}</div>
+                </div>
+                
+                <div class="grooming-level">
+                    <div class="type-title">身だしなみ意識レベル: ${getGroomingLevel()}</div>
+                    <div class="type-description">${getGroomingDescription()}</div>
+                </div>
+                
+                <div class="lifestyle-impact">
+                    <div class="type-title">生活習慣の美容への影響度: ${getLifestyleImpact()}</div>
+                    <div class="type-description">${getLifestyleDescription()}</div>
+                </div>
+                
+                <div class="improvement-points">
+                    <div class="type-title">改善するべき点</div>
+                    <div class="type-description">${getImprovementPoints()}</div>
+                </div>
+            `;
+        }
+
+        function analyzeSkinType() {
+            // 肌の状態に関する質問（0-7）の回答を分析
+            const skinAnswers = answers.slice(0, 8);
+            
+            // 簡単な分析ロジック
+            let dryCount = 0;
+            let oilyCount = 0;
+            let sensitiveCount = 0;
+            
+            // 各回答から肌タイプを推定
+            if (skinAnswers[0] === 1) dryCount++; // カサつく
+            if (skinAnswers[0] === 0) oilyCount++; // ベタつく
+            if (skinAnswers[0] === 4) sensitiveCount++; // ピリピリする
+            
+            if (skinAnswers[1] === 4) dryCount++; // 乾燥してカサカサ
+            if (skinAnswers[1] === 3) oilyCount++; // ベタベタする
+            
+            if (skinAnswers[2] === 0 || skinAnswers[2] === 1) dryCount++; // 唇の乾燥
+            
+            if (skinAnswers[4] === 0) oilyCount++; // ニキビ常にある
+            if (skinAnswers[4] === 2) dryCount++; // ニキビほとんどない
+            
+            if (skinAnswers[5] === 0) sensitiveCount++; // 赤みが目立つ
+            if (skinAnswers[5] === 4) dryCount++; // くすんで見える
+            
+            if (skinAnswers[7] === 3 || skinAnswers[7] === 4) dryCount++; // スキンケア不足
+            
+            // 肌タイプを決定
+            if (sensitiveCount >= 2) return 'sensitive';
+            if (dryCount >= 3) return 'dry';
+            if (oilyCount >= 3) return 'oily';
+            if (dryCount >= 1 && oilyCount >= 1) return 'combination';
+            return 'normal';
+        }
+
+        function analyzeHairType() {
+            // 髪の状態に関する質問（8-14）の回答を分析
+            const hairAnswers = answers.slice(8, 15);
+            
+            let coarseCount = 0;
+            let curlyCount = 0;
+            let fineCount = 0;
+            let straightCount = 0;
+            
+            // 髪を触った感じ
+            if (hairAnswers[0] === 0) coarseCount++; // パサパサ・ゴワゴワ
+            if (hairAnswers[0] === 1) straightCount++; // しっとりツヤ
+            if (hairAnswers[0] === 3) curlyCount++; // 絡まりやすい
+            
+            // 毛先の状態
+            if (hairAnswers[1] === 0 || hairAnswers[1] === 1) coarseCount++; // 枝毛、切れ毛
+            if (hairAnswers[1] === 2) curlyCount++; // まとまらない
+            
+            // 朝起きた時
+            if (hairAnswers[2] === 0) fineCount++; // ぺちゃんこ
+            if (hairAnswers[2] === 1 || hairAnswers[2] === 2) curlyCount++; // 爆発、寝癖
+            if (hairAnswers[2] === 3) straightCount++; // まとまっている
+            
+            // ボリューム
+            if (hairAnswers[5] === 0) fineCount++; // ペタン
+            if (hairAnswers[5] === 2) coarseCount++; // 多すぎる
+            if (hairAnswers[5] === 1) straightCount++; // ちょうどいい
+            
+            // 最も多いカウントで決定
+            const counts = { coarse: coarseCount, curly: curlyCount, fine: fineCount, straight: straightCount };
+            const maxCount = Math.max(...Object.values(counts));
+            
+            if (coarseCount === maxCount) return 'coarse';
+            if (curlyCount === maxCount) return 'curly';
+            if (fineCount === maxCount) return 'fine';
+            return 'straight';
+        }
+
+        function getGroomingLevel() {
+            // 眉毛・顔まわり（15-18）と服装・身だしなみ（19-24）の回答を分析
+            const groomingAnswers = answers.slice(15, 25);
+            let score = 0;
+            
+            // 眉毛の状態
+            if (groomingAnswers[0] === 0) score += 2; // 整えている
+            else if (groomingAnswers[0] === 1) score += 1; // 自然のまま
+            
+            // 鼻毛処理
+            if (groomingAnswers[1] === 0 || groomingAnswers[1] === 4) score += 2; // 見えていない/処理している
+            else if (groomingAnswers[1] === 1) score += 1; // たまに出る
+            
+            // まつ毛の状態
+            if (groomingAnswers[2] === 0 || groomingAnswers[2] === 4) score += 1; // 長くて濃い/普通
+            
+            // 産毛処理
+            if (groomingAnswers[3] === 0) score += 2; // 定期的に
+            else if (groomingAnswers[3] === 1) score += 1; // たまに
+            
+            // 服のシワ
+            if (groomingAnswers[4] === 0) score += 2; // シワがない
+            else if (groomingAnswers[4] === 1 || groomingAnswers[4] === 3) score += 1; // 少しシワ/シワになりにくい素材
+            
+            // 服のサイズ感
+            if (groomingAnswers[5] === 0) score += 2; // ジャストサイズ
+            else if (groomingAnswers[5] === 1 || groomingAnswers[5] === 2) score += 1; // 少し大きめ/小さめ
+            
+            // 爪の状態
+            if (groomingAnswers[6] === 0) score += 2; // 切りそろえて清潔
+            
+            // 香り対策
+            if (groomingAnswers[7] === 0 || groomingAnswers[7] === 1) score += 2; // 香水/体臭対策
+            
+            // 靴の状態
+            if (groomingAnswers[8] === 0) score += 2; // きれい
+            else if (groomingAnswers[8] === 1) score += 1; // 少し汚れている
+            
+            // 姿勢
+            if (groomingAnswers[9] === 0) score += 2; // 背筋が伸びている
+            else if (groomingAnswers[9] === 1) score += 1; // 少し猫背
+            
+            if (score >= 16) return "★★★★★ 非常に高い";
+            if (score >= 12) return "★★★★☆ 高い";
+            if (score >= 8) return "★★★☆☆ 普通";
+            if (score >= 4) return "★★☆☆☆ 低い";
+            return "★☆☆☆☆ 要改善";
+        }
+
+        function getGroomingDescription() {
+            const level = getGroomingLevel();
+            const descriptions = {
+                "★★★★★ 非常に高い": "素晴らしい身だしなみ意識をお持ちです。細部まで気を配り、清潔感のある印象を与えています。この調子で継続していきましょう。",
+                "★★★★☆ 高い": "身だしなみに対する意識が高く、基本的なケアはしっかりできています。さらに細かい部分に注意を向けることで、より洗練された印象になります。",
+                "★★★☆☆ 普通": "基本的な身だしなみはできていますが、まだ改善の余地があります。特に細かい部分のケアを意識することで、印象が大きく変わります。",
+                "★★☆☆☆ 低い": "身だしなみに対する意識を高める必要があります。基本的なケアから始めて、徐々に習慣化していきましょう。",
+                "★☆☆☆☆ 要改善": "身だしなみの基本から見直しましょう。清潔感は第一印象を大きく左右します。まずは毎日の基本的なケアから始めることをおすすめします。"
+            };
+            return descriptions[level];
+        }
+
+        function getLifestyleImpact() {
+            // 生活習慣・栄養（25-29）の回答を分析
+            const lifestyleAnswers = answers.slice(25, 30);
+            let score = 0;
+            
+            // 睡眠時間
+            if (lifestyleAnswers[0] === 0) score += 3; // 7-8時間
+            else if (lifestyleAnswers[0] === 1) score += 2; // 6時間程度
+            else if (lifestyleAnswers[0] === 3) score += 1; // 9時間以上
+            
+            // 水分摂取
+            if (lifestyleAnswers[1] === 0) score += 3; // 1.5L以上
+            else if (lifestyleAnswers[1] === 1) score += 2; // 1L程度
+            else if (lifestyleAnswers[1] === 2) score += 1; // 500ml程度
+            
+            // 食事バランス
+            if (lifestyleAnswers[2] === 0) score += 3; // バランス良い
+            else if (lifestyleAnswers[2] === 1) score += 2; // まあまあ
+            else if (lifestyleAnswers[2] === 2) score += 1; // 炭水化物中心
+            
+            // 運動習慣
+            if (lifestyleAnswers[3] === 0) score += 3; // 定期的に
+            else if (lifestyleAnswers[3] === 1) score += 2; // たまに
+            else if (lifestyleAnswers[3] === 2) score += 1; // 歩く程度
+            
+            // ストレス状態
+            if (lifestyleAnswers[4] === 0 || lifestyleAnswers[4] === 3) score += 2; // あまりない/解消法がある
+            else if (lifestyleAnswers[4] === 1) score += 1; // 適度にある
+            
+            if (score >= 12) return "★★★★★ 非常に良い";
+            if (score >= 9) return "★★★★☆ 良い";
+            if (score >= 6) return "★★★☆☆ 普通";
+            if (score >= 3) return "★★☆☆☆ 改善が必要";
+            return "★☆☆☆☆ 大幅な改善が必要";
+        }
+
+        function getLifestyleDescription() {
+            const impact = getLifestyleImpact();
+            const descriptions = {
+                "★★★★★ 非常に良い": "生活習慣が美容に非常に良い影響を与えています。規則正しい生活とバランスの取れた食事、適度な運動により、内側から美しさが輝いています。",
+                "★★★★☆ 良い": "生活習慣は概ね良好で、美容にプラスの影響を与えています。現在の良い習慣を継続しつつ、さらに改善できる点があれば取り組んでみましょう。",
+                "★★★☆☆ 普通": "生活習慣は標準的ですが、美容面でより良い結果を得るためには改善の余地があります。特に睡眠や食事の質を見直してみましょう。",
+                "★★☆☆☆ 改善が必要": "生活習慣が美容に悪影響を与えている可能性があります。睡眠時間の確保、バランスの良い食事、適度な運動を心がけましょう。",
+                "★☆☆☆☆ 大幅な改善が必要": "生活習慣の大幅な見直しが必要です。不規則な生活は肌荒れや髪のダメージの原因となります。まずは睡眠と食事から改善を始めましょう。"
+            };
+            return descriptions[impact];
+        }
+
+        function getImprovementPoints() {
+            const improvements = [];
+            
+            // 肌の状態から改善点を抽出
+            const skinAnswers = answers.slice(0, 8);
+            if (skinAnswers[6] === 2 || skinAnswers[6] === 3 || skinAnswers[6] === 4) {
+                improvements.push("• 日焼け止めを毎日使用する習慣をつけましょう");
+            }
+            if (skinAnswers[7] === 2 || skinAnswers[7] === 3 || skinAnswers[7] === 4) {
+                improvements.push("• 基本的なスキンケア（洗顔・保湿）を毎日行いましょう");
+            }
+            if (skinAnswers[4] === 0 || skinAnswers[4] === 1 || skinAnswers[4] === 4) {
+                improvements.push("• ニキビケアを見直し、適切な洗顔と保湿を心がけましょう");
+            }
+            
+            // 髪の状態から改善点を抽出
+            const hairAnswers = answers.slice(8, 15);
+            if (hairAnswers[0] === 0 || hairAnswers[1] === 0 || hairAnswers[1] === 4) {
+                improvements.push("• ヘアトリートメントやヘアオイルで髪の保湿ケアを強化しましょう");
+            }
+            if (hairAnswers[6] === 3 || hairAnswers[6] === 4) {
+                improvements.push("• ヘアスタイリング剤の使い方を学び、髪型を整える習慣をつけましょう");
+            }
+            
+            // 身だしなみから改善点を抽出
+            const groomingAnswers = answers.slice(15, 25);
+            if (groomingAnswers[0] === 2 || groomingAnswers[0] === 3 || groomingAnswers[0] === 4) {
+                improvements.push("• 眉毛を整えて、顔の印象を向上させましょう");
+            }
+            if (groomingAnswers[3] === 2 || groomingAnswers[3] === 3 || groomingAnswers[3] === 4) {
+                improvements.push("• 顔の産毛処理を定期的に行い、肌の透明感を上げましょう");
+            }
+            if (groomingAnswers[6] === 1 || groomingAnswers[6] === 2 || groomingAnswers[6] === 3 || groomingAnswers[6] === 4) {
+                improvements.push("• 爪を清潔に保ち、定期的にお手入れしましょう");
+            }
+            if (groomingAnswers[9] === 1 || groomingAnswers[9] === 2 || groomingAnswers[9] === 4) {
+                improvements.push("• 姿勢を意識して、美しい立ち姿を心がけましょう");
+            }
+            
+            // 生活習慣から改善点を抽出
+            const lifestyleAnswers = answers.slice(25, 30);
+            if (lifestyleAnswers[0] === 2 || lifestyleAnswers[0] === 4) {
+                improvements.push("• 質の良い睡眠を7-8時間確保し、肌と髪の再生を促しましょう");
+            }
+            if (lifestyleAnswers[1] === 2 || lifestyleAnswers[1] === 3 || lifestyleAnswers[1] === 4) {
+                improvements.push("• 1日1.5L以上の水分摂取で、肌の潤いを内側から保ちましょう");
+            }
+            if (lifestyleAnswers[2] === 2 || lifestyleAnswers[2] === 3 || lifestyleAnswers[2] === 4) {
+                improvements.push("• 野菜とタンパク質を意識したバランスの良い食事を心がけましょう");
+            }
+            if (lifestyleAnswers[3] === 3 || lifestyleAnswers[3] === 4) {
+                improvements.push("• 適度な運動習慣で血行を促進し、肌のツヤと髪の健康を向上させましょう");
+            }
+            
+            if (improvements.length === 0) {
+                return "現在の美容習慣を継続し、さらに上級者向けのケアに挑戦してみましょう。定期的な美容サロンでのケアや、新しい美容法の取り入れを検討してみてください。";
+            }
+            
+            return improvements.join("<br>");
+        }
+
+        function restartDiagnosis() {
+            currentQuestion = 0;
+            answers = [];
+            document.getElementById('resultContainer').style.display = 'none';
+            document.getElementById('startScreen').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
